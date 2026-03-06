@@ -20,10 +20,12 @@ const ALLOWED_ORIGINS = [
   process.env.CLIENT_ORIGIN,
 ].filter(Boolean);
 
-app.use(cors({
-  origin: ALLOWED_ORIGINS,
-  allowedHeaders: ["Authorization", "Content-Type"],
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://fintrakapp.netlify.app"],
+    allowedHeaders: ["Authorization", "Content-Type"],
+  }),
+);
 
 app.use(middlewares);
 app.use(rules);
