@@ -1,43 +1,42 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useCallback } from "react";
+import { useFetch } from "../../hooks/useFetch";
 
 const CreditsContext = createContext();
 
 function CreditsProvider({ children }) {
-  const [credits, setCredits] = useState(() => {
-    const storedCredits = localStorage.getItem("credits");
-    return storedCredits ? JSON.parse(storedCredits) : [];
-  });
-  useEffect(() => {
-    localStorage.setItem("credits", JSON.stringify(credits));
+  const { data: credits, loading, error, post, put, refetch } = useFetch("/credits");
+
+  const addCredit = useCallback(async (credit) => {
+    await post(credit);
+  }, [post]);
+
+  const getCreditByCreditId = useCallback((id) => {
+    return credits.find(c => c.id === id);
   }, [credits]);
 
-  function addCredit(newCredit) {
-    setCredits((prev) => [...prev, newCredit]);
-  }
+  const getCreditsByClientId = useCallback((clientId) => {
+    return credits.filter(c => c.clientId === clientId);
+  }, [credits]);
 
-  function getCreditByCreditId(id) {
-    return credits.find((credit) => credit.id === id);
-  }
-  function getCreditsByClientId(id) {
-    return credits.filter((credit) => credit.clientId === id);
-  }
-
-  function updateCredit(id, updatedCredit) {
-    setCredits((prev) =>
-      prev.map((credit) => (credit.id === id ? updatedCredit : credit)),
-    );
-  }
+  const updateCredit = useCallback(async (id, updatedCredit) => {
+    await put(id, updatedCredit);
+  }, [put]);
 
   const value = {
     credits,
+    loading,
+    error,
     addCredit,
     getCreditByCreditId,
     getCreditsByClientId,
     updateCredit,
+    refetch,
   };
 
   return (
-    <CreditsContext.Provider value={value}>{children}</CreditsContext.Provider>
+    <CreditsContext.Provider value={value}>
+      {children}
+    </CreditsContext.Provider>
   );
 }
 

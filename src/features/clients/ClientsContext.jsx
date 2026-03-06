@@ -1,24 +1,34 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback } from "react";
+import { useFetch } from "../../hooks/useFetch";
 
 const ClientsContext = createContext();
+
 function ClientsProvider({ children }) {
-  const [clients, setClients] = useState(() => {
-    const stored = localStorage.getItem("clients");
-    return stored ? JSON.parse(stored) : [];
-  });
+  const { data: clients, loading, error, post, refetch } = useFetch("/clients");//sumar put para update
 
-  useEffect(() => {
-    localStorage.setItem("clients", JSON.stringify(clients));
-  }, [clients]);
+  const addClient = useCallback(
+    async (client) => {
+      await post(client);
+    },
+    [post],
+  );
 
-  function addClient(client) {
-    setClients((prevClients) => [...prevClients, client]);
-  }
-  function getClientById(id) {
-    return clients.find((c) => c.id === id);
-  }
+  const getClientById = useCallback(
+    (id) => {
+      return clients.find((c) => c.id === id);
+    },
+    [clients],
+  );
 
-  const value = { clients, addClient, getClientById };
+  const value = {
+    clients,
+    loading,
+    error,
+    addClient,
+    getClientById,
+    refetch,
+  };
+
   return (
     <ClientsContext.Provider value={value}>{children}</ClientsContext.Provider>
   );

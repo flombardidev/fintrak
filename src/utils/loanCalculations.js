@@ -48,6 +48,7 @@ export function generateAmortizationSchedule(principal, annualRate, months) {
       principalPaid,
       interestPaid,
       balance: balance < 0 ? 0 : balance,
+      paid: false, 
     };
 
     schedule = [...schedule, newEntry]; // versión inmutable
@@ -92,25 +93,24 @@ export function generateScheduleWithFixedInstallment(
   return schedule;
 }
 
-// Validación: solo throw, nada de alert
 export function validateEarlyPaymentInput(amountInput, monthInput) {
   const amount = Number(amountInput);
   const month = Number(monthInput);
 
   if (!amountInput || Number.isNaN(amount)) {
-    throw new Error("Amount is required and must be a valid number");
+    throw new Error("Le montant est requis et doit être un nombre valide");
   }
 
   if (!monthInput || Number.isNaN(month)) {
-    throw new Error("Month is required and must be a valid number");
+    throw new Error("Le mois est requis et doit être un nombre valide");
   }
 
   if (amount < 3000) {
-    throw new Error("Minimum early payment is 3000€");
+    throw new Error("Le paiement anticipé minimum est de 3 000 €");
   }
 
   if (month <= 0 || !Number.isInteger(month)) {
-    throw new Error("Month must be a positive integer");
+    throw new Error("Le mois doit être un entier positif");
   }
   console.log(month);
   return { amount, month };
@@ -118,10 +118,11 @@ export function validateEarlyPaymentInput(amountInput, monthInput) {
 export function applyEarlyPayment(schedule, amount, monthNumber, annualRate) {
   const currentBalance = schedule[monthNumber - 1].balance;
 
-  if (amount < 3000) throw new Error("Pago adelantado mínimo 3000€");
+  if (amount < 3000)
+    throw new Error("Le paiement anticipé minimum est de 3 000 €");
   if (amount > currentBalance)
     throw new Error(
-      `Pago adelantado demasiado alto. Saldo restante: ${currentBalance.toFixed(2)}€`,
+      `Le paiement anticipé est trop élevé. Solde restant: ${currentBalance.toFixed(2)}€`,
     );
 
   let newBalance = currentBalance - amount;
@@ -141,12 +142,14 @@ export function applyEarlyPayment(schedule, amount, monthNumber, annualRate) {
 }
 
 /**
- * Calcula saldo restante hasta el mes especificado
+ * Marks the next unpaid installment as paid
  * @param {Array} schedule
- * @param {number} monthNumber
- * @returns {number} saldo restante
+ * @returns {Array} updated schedule
  */
-// export function calculateRemainingBalance(schedule, monthNumber) {
-//   if (monthNumber > schedule.length) return 0;
-//   return schedule[monthNumber - 1].balance;
-// }
+export function payNextInstallment(schedule) {
+  const nextUnpaid = schedule.findIndex((row) => !row.paid);
+  if (nextUnpaid === -1) return schedule; // all paid
+  return schedule.map((row, i) =>
+    i === nextUnpaid ? { ...row, paid: true } : row,
+  );
+}
