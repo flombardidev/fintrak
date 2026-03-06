@@ -3,7 +3,7 @@ import { useClients } from "./useClients";
 import { useAuth } from "../auth/useAuth";
 
 export default function NewClient() {
-  const { addClient } = useClients();
+  const { addClient, clients } = useClients();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -16,6 +16,21 @@ export default function NewClient() {
     if (!email.trim()) newErrors.email = "L'email est requis";
     else if (!/\S+@\S+\.\S+/.test(email))
       newErrors.email = "L'email n'est pas valide";
+
+    const normalEmail = email.trim().toLowerCase();
+    const normalPhone = phone.trim();
+
+    for (const c of clients) {
+      if (normalEmail && c.email.toLowerCase() === normalEmail) {
+        newErrors.email = "Un client avec cet email existe déjà";
+        break;
+      }
+      if (normalPhone && c.phone && c.phone.trim() === normalPhone) {
+        newErrors.phone = "Un client avec ce téléphone existe déjà";
+        break;
+      }
+    }
+
     return newErrors;
   };
 
@@ -87,9 +102,17 @@ export default function NewClient() {
             type="text"
             placeholder="Téléphone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm placeholder-gray-400 transition focus:ring-2 focus:ring-gray-900 focus:outline-none"
+            onChange={(e) => {
+              setPhone(e.target.value);
+              setErrors((p) => ({ ...p, phone: "" }));
+            }}
+            className={`w-full rounded-xl border px-4 py-2.5 text-sm placeholder-gray-400 transition focus:ring-2 focus:ring-gray-900 focus:outline-none ${
+              errors.phone ? "border-red-400 bg-red-50" : "border-gray-200"
+            }`}
           />
+          {errors.phone && (
+            <p className="mt-1 ml-1 text-xs text-red-500">{errors.phone}</p>
+          )}
         </div>
 
         <button

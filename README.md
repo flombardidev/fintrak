@@ -2,6 +2,16 @@
 
 A credit and client management web application built with React and a local REST API.
 
+## Live demo
+
+[https://fintrak.netlify.app](https://fintrak.netlify.app)
+
+> The backend runs on Render's free tier and may take 30–50 seconds to wake up on the first request.
+
+## Preview
+
+![Dashboard](./docs/screenshot.png)
+
 ## Features
 
 - **Authentication** — sign-up and login with JWT (json-server-auth)
@@ -27,7 +37,6 @@ A credit and client management web application built with React and a local REST
 - npm
 
 ## Installation
-
 ```bash
 npm install
 ```
@@ -35,13 +44,11 @@ npm install
 ## Running the app
 
 Start the API server and the frontend together:
-
 ```bash
 npm run dev:full
 ```
 
 Or separately:
-
 ```bash
 # API (port 3001)
 npm run server
@@ -51,7 +58,6 @@ npm run dev
 ```
 
 ## Project structure
-
 ```
 src/
 ├── app/              # Router, Layout, PrivateRoute
@@ -92,6 +98,12 @@ The app is split into two services:
 3. Add the environment variable in Render → Environment:
    - `CLIENT_ORIGIN` = your Netlify URL (e.g. `https://fintrak.netlify.app`)
 
+## Known limitations
+
+- `db.json` is committed to the repo — data resets on every Render redeploy
+- The backend is not multi-tenant — all authenticated users share the same data
+- Intended as a portfolio project, not a production system
+
 ## Financial engine
 
 Amortization logic lives in `src/utils/loanCalculations.js`:
@@ -99,3 +111,8 @@ Amortization logic lives in `src/utils/loanCalculations.js`:
 - `generateAmortizationSchedule(principal, annualRate, months)` — generates a full schedule
 - `applyEarlyPayment(schedule, amount, monthNumber, annualRate)` — simulates an early repayment
 - `payNextInstallment(schedule)` — marks the next unpaid installment as paid
+```
+
+Guardalo como `README.md` en la raíz, creá la carpeta `docs/` con un screenshot del dashboard y committeás todo junto:
+```
+docs: add README and dashboard screenshot
